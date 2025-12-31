@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}Movie Night Roll - Seasons{% endblock %}
+
+{% block content %}
+<div class="seasons-container">
+    <h1>🗓️ Manage Seasons</h1>
+    
+    <div class="season-actions">
+        <button id="newSeasonButton" class="btn btn-primary">Create New Season</button>
+    </div>
+
+    <div id="seasonsList" class="seasons-list">
+        <p>Loading seasons...</p>
+    </div>
+</div>
+
+<div id="seasonModal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2 id="modalTitle">Create New Season</h2>
+        <form id="seasonForm">
+            <div class="form-group">
+                <label for="seasonName">Season Name:</label>
+                <input type="text" id="seasonName" name="name" required class="form-input">
+            </div>
+            
+            <div class="form-group">
+                <label for="spreadsheetTab">Spreadsheet Tab:</label>
+                <input type="text" id="spreadsheetTab" name="spreadsheet_tab" value="General" required class="form-input">
+            </div>
+            
+            <div class="form-group">
+                <label>
+                    <input type="checkbox" id="isActive" name="is_active" checked>
+                    Active Season
+                </label>
+                <p class="help-text">Only one season can be active at a time</p>
+            </div>
+            
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Save Season</button>
+                <button type="button" id="cancelButton" class="btn btn-secondary">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/seasons.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block title %}Movie Night Roll - Home{% endblock %}
+
+{% block content %}
+<div class="roll-container">
+    <h1>🎲 Roll for Tonight's Movie</h1>
+    
+    <div class="season-info" id="seasonInfo">
+        <p>Loading season information...</p>
+    </div>
+
+    <div class="eligible-info" id="eligibleInfo">
+        <h3>Eligible Participants</h3>
+        <p>Loading...</p>
+    </div>
+
+    <div class="roll-options">
+        <h3>Roll Options</h3>
+        
+        <div class="option-group">
+            <label>
+                <input type="radio" name="rollType" value="all" checked>
+                Roll from all eligible participants
+            </label>
+        </div>
+        
+        <div class="option-group">
+            <label>
+                <input type="radio" name="rollType" value="custom">
+                Roll from specific participants
+            </label>
+            <div id="customParticipants" class="custom-participants" style="display: none;">
+                <p>Select participants:</p>
+                <div id="participantCheckboxes"></div>
+            </div>
+        </div>
+    </div>
+
+    <button id="rollButton" class="btn btn-primary btn-large">
+        🎬 Roll the Dice!
+    </button>
+
+    <div id="rollResult" class="roll-result" style="display: none;">
+        <h2>🎉 Tonight's Selection</h2>
+        <div class="result-content">
+            <p class="participant-name"></p>
+            <p class="movie-title"></p>
+            <button id="enrichButton" class="btn btn-secondary">Fetch Movie Details from TMDB</button>
+            <div id="movieDetails" class="movie-details" style="display: none;"></div>
+        </div>
+    </div>
+
+    <div class="season-roster" id="seasonRoster">
+        <h3>Already Selected This Season</h3>
+        <ul id="rosterList"></ul>
+        <button id="resetRosterButton" class="btn btn-danger btn-small">Reset Season Roster</button>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/roll.js') }}"></script>
+{% endblock %}

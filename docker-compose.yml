@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  # Flask Web Application
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: movie_night_web
+    environment:
+      # Flask
+      FLASK_ENV: production
+      SECRET_KEY: ${SECRET_KEY:-change-this-secret-key-in-production}
+      
+      # Database (external PostgreSQL)
+      DATABASE_URL: ${DATABASE_URL}
+      
+      # TMDB API
+      TMDB_API_KEY: ${TMDB_API_KEY}
+      TMDB_BASE_URL: https://api.themoviedb.org/3
+      
+      # Google Sheets
+      GOOGLE_SPREADSHEET_ID: ${GOOGLE_SPREADSHEET_ID}
+      GOOGLE_CREDENTIALS_PATH: /app/credentials.json
+    volumes:
+      # Mount credentials file if it exists locally
+      # Note: Removed :ro to allow token.pickle creation, added :z for SELinux
+      - ./credentials.json:/app/credentials.json:z
+    ports:
+      - "5000:5000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:5000/', timeout=5)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped

@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block title %}Movie Night Roll - History{% endblock %}
+
+{% block content %}
+<div class="history-container">
+    <h1>📜 Roll History</h1>
+    
+    <div class="filters">
+        <label for="seasonFilter">Filter by Season:</label>
+        <select id="seasonFilter" class="form-select">
+            <option value="">All Seasons</option>
+        </select>
+    </div>
+
+    <div id="historyList" class="history-list">
+        <p>Loading history...</p>
+    </div>
+</div>
+
+<div id="rollModal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2>Roll Details</h2>
+        <div id="rollDetails"></div>
+        <div class="modal-actions">
+            <button id="deleteRollButton" class="btn btn-danger">Delete Roll</button>
+            <button id="enrichRollButton" class="btn btn-secondary">Fetch TMDB Data</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/history.js') }}"></script>
+{% endblock %}
