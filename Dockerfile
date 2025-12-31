@@ -23,8 +23,11 @@ RUN uv pip install --system --no-cache -r pyproject.toml
 COPY . .
 
 # Create a non-root user to run the application
+# Create credentials directory for mounting
 RUN useradd -m -u 1000 appuser && \
+    mkdir -p /app/credentials && \
     chown -R appuser:appuser /app
+
 USER appuser
 
 # Expose port

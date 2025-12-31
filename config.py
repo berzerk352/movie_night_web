@@ -26,7 +26,7 @@ class Config:
         'GOOGLE_SPREADSHEET_ID',
         '1AI2EqC73Z87U1Y47Fl068xvQnQXsZ85Yll3G7UKa1ps'
     )
-    GOOGLE_CREDENTIALS_PATH = os.getenv('GOOGLE_CREDENTIALS_PATH', 'credentials.json')
+    GOOGLE_CREDENTIALS_PATH = os.getenv('GOOGLE_CREDENTIALS_PATH', '/app/credentials/credentials.json')
 
 
 class DevelopmentConfig(Config):

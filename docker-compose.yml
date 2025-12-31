@@ -21,11 +21,11 @@ services:
       
       # Google Sheets
       GOOGLE_SPREADSHEET_ID: ${GOOGLE_SPREADSHEET_ID}
-      GOOGLE_CREDENTIALS_PATH: /app/credentials.json
+      GOOGLE_CREDENTIALS_PATH: /app/credentials/credentials.json
     volumes:
-      # Mount credentials file if it exists locally
-      # Note: Removed :ro to allow token.pickle creation, added :z for SELinux
-      - ./credentials.json:/app/credentials.json:z
+      # Mount credentials directory for Google Sheets authentication
+      # The :z flag handles SELinux contexts on systems like Fedora/RHEL
+      - ./credentials:/app/credentials:z
     ports:
       - "5000:5000"
     healthcheck:

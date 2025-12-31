@@ -133,6 +133,10 @@ docker build -t movie-night-web:latest .
 Run the container with required environment variables:
 
 ```bash
+# Create a credentials directory and place your credentials.json file in it
+mkdir -p credentials
+cp /path/to/credentials.json credentials/
+
 docker run -d \
   --name movie-night-web \
   -p 5000:5000 \
@@ -140,11 +144,11 @@ docker run -d \
   -e SECRET_KEY="your-secret-key" \
   -e TMDB_API_KEY="your-tmdb-key" \
   -e GOOGLE_SPREADSHEET_ID="your-spreadsheet-id" \
-  -v $(pwd)/credentials.json:/app/credentials.json:z \
+  -v $(pwd)/credentials:/app/credentials:z \
   movie-night-web:latest
 ```
 
-**Note**: The `:z` flag is used for SELinux systems (like Fedora/RHEL). On non-SELinux systems, you can omit it. The application needs read access to credentials.json and write access to create token.pickle in the working directory.
+**Note**: The credentials directory is mounted to `/app/credentials` inside the container. The `:z` flag handles SELinux contexts on systems like Fedora/RHEL. The application will store both `credentials.json` and the generated `token.pickle` in this directory.
 
 ### Running with Docker Compose
 
