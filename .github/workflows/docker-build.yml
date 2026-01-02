@@ -47,9 +47,7 @@ jobs:
           )
 
       - name: Run pylint
-        run: |
-          cd movie_night_web
-          pylint *.py --fail-under=9.5
+        run: pylint *.py --fail-under=9.5
 
   build-and-push:
     runs-on: ubuntu-latest
