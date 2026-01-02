@@ -1,23 +1,33 @@
 """Main Flask application for Movie Night Web."""
+import os
+
 from flask import Flask, render_template, request, jsonify
+
 from config import config
 from models import db, Season, Participant, Roll
 from database import init_db
-from roll_logic import perform_roll, get_eligible_participants, get_season_roster, reset_season_roster
-from sheets_integration import get_participants_from_sheet, get_movies_by_participant
+from roll_logic import (
+    perform_roll,
+    get_eligible_participants,
+    get_season_roster,
+    reset_season_roster
+)
+from sheets_integration import (
+    get_participants_from_sheet,
+    get_movies_by_participant
+)
 from tmdb_integration import enrich_movie_data
-import os
 
 
 def create_app(config_name='default'):
     """Application factory pattern."""
-    app = Flask(__name__)
-    app.config.from_object(config[config_name])
-    
+    flask_app = Flask(__name__)
+    flask_app.config.from_object(config[config_name])
+
     # Initialize database
-    init_db(app)
-    
-    return app
+    init_db(flask_app)
+
+    return flask_app
 
 
 app = create_app(os.getenv('FLASK_ENV', 'development'))
@@ -40,7 +50,7 @@ def history():
 
 
 @app.route('/seasons')
-def seasons():
+def seasons_page():
     """Manage seasons."""
     return render_template('seasons.html')
 
@@ -52,19 +62,19 @@ def seasons():
 @app.route('/api/seasons', methods=['GET'])
 def api_get_seasons():
     """Get all seasons."""
-    seasons = Season.query.order_by(Season.created_at.desc()).all()
-    return jsonify([s.to_dict() for s in seasons])
+    all_seasons = Season.query.order_by(Season.created_at.desc()).all()
+    return jsonify([s.to_dict() for s in all_seasons])
 
 
 @app.route('/api/seasons', methods=['POST'])
 def api_create_season():
     """Create a new season."""
     data = request.json
-    
+
     # Deactivate other seasons if this one is active
     if data.get('is_active', True):
         Season.query.update({'is_active': False})
-    
+
     season = Season(
         name=data['name'],
         spreadsheet_tab=data.get('spreadsheet_tab', 'General'),
@@ -72,7 +82,7 @@ def api_create_season():
     )
     db.session.add(season)
     db.session.commit()
-    
+
     return jsonify(season.to_dict()), 201
 
 
@@ -88,7 +98,7 @@ def api_update_season(season_id):
     """Update a season."""
     season = Season.query.get_or_404(season_id)
     data = request.json
-    
+
     if 'name' in data:
         season.name = data['name']
     if 'spreadsheet_tab' in data:
@@ -98,7 +108,7 @@ def api_update_season(season_id):
             # Deactivate other seasons
             Season.query.filter(Season.id != season_id).update({'is_active': False})
         season.is_active = data['is_active']
-    
+
     db.session.commit()
     return jsonify(season.to_dict())
 
@@ -134,13 +144,13 @@ def api_get_participants():
 def api_get_participants_from_sheet():
     """Get participants from Google Sheets."""
     season_id = request.args.get('season_id', type=int)
-    
+
     if season_id:
         season = Season.query.get_or_404(season_id)
         tab = season.spreadsheet_tab
     else:
         tab = 'General'
-    
+
     participants = get_participants_from_sheet(tab)
     return jsonify({'participants': participants})
 
@@ -150,13 +160,13 @@ def api_get_participant_movies(participant_id):
     """Get movies for a specific participant."""
     participant = Participant.query.get_or_404(participant_id)
     season_id = request.args.get('season_id', type=int)
-    
+
     if season_id:
         season = Season.query.get_or_404(season_id)
         tab = season.spreadsheet_tab
     else:
         tab = 'General'
-    
+
     movies = get_movies_by_participant(participant.name, tab)
     return jsonify({'movies': movies})
 
@@ -169,11 +179,11 @@ def api_get_participant_movies(participant_id):
 def api_get_rolls():
     """Get all rolls, optionally filtered by season."""
     season_id = request.args.get('season_id', type=int)
-    
+
     query = Roll.query
     if season_id:
         query = query.filter_by(season_id=season_id)
-    
+
     rolls = query.order_by(Roll.roll_date.desc()).all()
     return jsonify([r.to_dict() for r in rolls])
 
@@ -184,19 +194,19 @@ def api_perform_roll():
     data = request.json
     season_id = data.get('season_id')
     custom_participants = data.get('participants')
-    
+
     if not season_id:
         # Get active season
         season = Season.query.filter_by(is_active=True).first()
         if not season:
             return jsonify({'error': 'No active season found'}), 400
         season_id = season.id
-    
+
     result = perform_roll(season_id, custom_participants)
-    
+
     if 'error' in result:
         return jsonify(result), 400
-    
+
     return jsonify(result), 201
 
 
@@ -212,14 +222,14 @@ def api_update_roll(roll_id):
     """Update a roll (e.g., add notes or TMDB data)."""
     roll = Roll.query.get_or_404(roll_id)
     data = request.json
-    
+
     if 'notes' in data:
         roll.notes = data['notes']
     if 'tmdb_id' in data:
         roll.tmdb_id = data['tmdb_id']
     if 'tmdb_data' in data:
         roll.tmdb_data = data['tmdb_data']
-    
+
     db.session.commit()
     return jsonify(roll.to_dict())
 
@@ -228,15 +238,15 @@ def api_update_roll(roll_id):
 def api_enrich_roll(roll_id):
     """Enrich a roll with TMDB data."""
     roll = Roll.query.get_or_404(roll_id)
-    
+
     tmdb_data = enrich_movie_data(roll.movie_title)
-    
+
     if tmdb_data:
         roll.tmdb_id = tmdb_data.get('tmdb_id')
         roll.tmdb_data = tmdb_data
         db.session.commit()
         return jsonify(roll.to_dict())
-    
+
     return jsonify({'error': 'Could not fetch TMDB data'}), 404
 
 
@@ -257,13 +267,13 @@ def api_delete_roll(roll_id):
 def api_get_eligible():
     """Get eligible participants for rolling."""
     season_id = request.args.get('season_id', type=int)
-    
+
     if not season_id:
         season = Season.query.filter_by(is_active=True).first()
         if not season:
             return jsonify({'error': 'No active season found'}), 400
         season_id = season.id
-    
+
     eligible = get_eligible_participants(season_id)
     return jsonify({'eligible': eligible, 'count': len(eligible)})
 
@@ -273,7 +283,7 @@ def api_get_eligible():
 # ============================================================================
 
 @app.errorhandler(404)
-def not_found(error):
+def not_found(_error):
     """Handle 404 errors."""
     if request.path.startswith('/api/'):
         return jsonify({'error': 'Not found'}), 404
@@ -281,7 +291,7 @@ def not_found(error):
 
 
 @app.errorhandler(500)
-def internal_error(error):
+def internal_error(_error):
     """Handle 500 errors."""
     db.session.rollback()
     if request.path.startswith('/api/'):

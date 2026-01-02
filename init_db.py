@@ -25,11 +25,11 @@ def main():
         print("Initializing database...")
         init_db(app)
         print("✓ Database tables created!")
-        
+
         print("\nSeeding initial data...")
         seed_db(app)
         print("✓ Database seeded!")
-    
+
     print("\n🎉 Database setup complete!")
     print("\nYou can now run the application with:")
     print("  uv run python app.py")

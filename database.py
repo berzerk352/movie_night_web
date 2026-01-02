@@ -5,7 +5,7 @@ from models import db
 def init_db(app):
     """Initialize the database with the Flask app."""
     db.init_app(app)
-    
+
     with app.app_context():
         # Create all tables
         db.create_all()
@@ -22,15 +22,15 @@ def reset_db(app):
 
 def seed_db(app):
     """Seed the database with initial data."""
-    from models import Season, Participant
-    from datetime import datetime
-    
+    from datetime import datetime  # pylint: disable=import-outside-toplevel
+    from models import Season  # pylint: disable=import-outside-toplevel
+
     with app.app_context():
         # Check if data already exists
         if Season.query.first() is not None:
             print("Database already contains data. Skipping seed.")
             return
-        
+
         # Create initial season
         season = Season(
             name="Season 1",
@@ -39,12 +39,12 @@ def seed_db(app):
             spreadsheet_tab="General"
         )
         db.session.add(season)
-        
+
         # Create some example participants (optional)
         # participants = ['Alice', 'Bob', 'Charlie']
         # for name in participants:
         #     participant = Participant(name=name)
         #     db.session.add(participant)
-        
+
         db.session.commit()
         print("Database seeded successfully!")
