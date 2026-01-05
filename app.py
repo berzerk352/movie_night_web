@@ -40,7 +40,17 @@ app = create_app(os.getenv('FLASK_ENV', 'development'))
 @app.route('/')
 def index():
     """Main page."""
-    return render_template('index.html')
+    # Get the active season
+    season = Season.query.filter_by(is_active=True).first()
+    
+    # Get the most recent roll for the active season
+    latest_roll = None
+    if season:
+        latest_roll = Roll.query.filter_by(season_id=season.id)\
+            .order_by(Roll.roll_date.desc())\
+            .first()
+    
+    return render_template('index.html', latest_roll=latest_roll)
 
 
 @app.route('/history')
