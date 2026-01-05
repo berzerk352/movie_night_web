@@ -28,6 +28,13 @@ services:
       - ./credentials:/app/credentials:z
     ports:
       - "5000:5000"
+    # Memory limits to prevent excessive usage
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+        reservations:
+          memory: 64M
     healthcheck:
       test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:5000/', timeout=5)"]
       interval: 30s
