@@ -3,47 +3,35 @@
 {% block title %}Movie Night Roll - Home{% endblock %}
 
 {% block content %}
-<div class="roll-container">
-    <h1>🎲 Roll for Tonight's Movie</h1>
-    
-    {% if latest_roll %}
-    <div class="current-movie">
-        <h2>🎬 Current Movie</h2>
-        <div class="current-movie-content">
-            {% if latest_roll.tmdb_data and latest_roll.tmdb_data.poster_url %}
-            <div class="current-movie-poster">
-                <img src="{{ latest_roll.tmdb_data.poster_url }}" alt="{{ latest_roll.movie_title }} poster">
-            </div>
-            {% endif %}
-            <div class="current-movie-info">
-                <h3 class="current-movie-title">{{ latest_roll.movie_title }}</h3>
-                <p class="current-movie-submitter">
-                    <span class="submitter-label">Submitted by:</span>
-                    <span class="submitter-name">{{ latest_roll.participant.name }}</span>
-                </p>
-                {% if latest_roll.tmdb_data %}
-                <div class="current-movie-details">
-                    {% if latest_roll.tmdb_data.release_date %}
-                    <p><strong>Release Date:</strong> {{ latest_roll.tmdb_data.release_date }}</p>
-                    {% endif %}
-                    {% if latest_roll.tmdb_data.runtime %}
-                    <p><strong>Runtime:</strong> {{ latest_roll.tmdb_data.runtime }} minutes</p>
-                    {% endif %}
-                    {% if latest_roll.tmdb_data.genres %}
-                    <p><strong>Genres:</strong> {{ latest_roll.tmdb_data.genres|join(', ') }}</p>
-                    {% endif %}
-                    {% if latest_roll.tmdb_data.vote_average %}
-                    <p><strong>Rating:</strong> {{ latest_roll.tmdb_data.vote_average }}/10</p>
-                    {% endif %}
-                    {% if latest_roll.tmdb_data.overview %}
-                    <p class="current-movie-overview"><strong>Overview:</strong> {{ latest_roll.tmdb_data.overview }}</p>
-                    {% endif %}
-                </div>
-                {% endif %}
-            </div>
-        </div>
+{% if latest_roll %}
+<div class="current-movie-sidebar">
+    <h3>▸ Current Selection</h3>
+    {% if latest_roll.tmdb_data and latest_roll.tmdb_data.poster_url %}
+    <div class="current-movie-poster">
+        <img src="{{ latest_roll.tmdb_data.poster_url }}" alt="{{ latest_roll.movie_title }} poster">
     </div>
     {% endif %}
+    <div class="current-movie-info">
+        <h4 class="current-movie-title">{{ latest_roll.movie_title }}</h4>
+        <p class="current-movie-submitter">
+            <strong>{{ latest_roll.participant.name }}</strong>
+        </p>
+        {% if latest_roll.tmdb_data %}
+        <div class="current-movie-details">
+            {% if latest_roll.tmdb_data.vote_average %}
+            <p>⭐ {{ latest_roll.tmdb_data.vote_average }}/10</p>
+            {% endif %}
+            {% if latest_roll.tmdb_data.runtime %}
+            <p>⏱️ {{ latest_roll.tmdb_data.runtime }} min</p>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+
+<div class="roll-container">
+    <h1>Roll for Tonight's Movie</h1>
     
     <div class="season-info" id="seasonInfo">
         <p>Loading season information...</p>
